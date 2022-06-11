@@ -6,4 +6,5 @@ Przy poprawnej odpowiedzi zadajemy obrazenia HP przeciwnikowi przy niepoprawnej 
 
 
 Użyte pomoce:
-https://opentdb.com/api_config.php
+https://opentdb.com/api_config.php - Pytania
+https://www.newtonsoft.com/json - Json.NET 
