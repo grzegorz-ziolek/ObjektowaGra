@@ -1,6 +1,7 @@
 using Newtonsoft.Json;
 using System;
 using System.IO;
+using System.Collections.Generic;
 
 namespace ObjektowaGra
 {
@@ -21,7 +22,7 @@ namespace ObjektowaGra
         public string difficulty;
         public string question;
         public string correct_answer;
-        public string[] incorrect_asnwers = new string[0];
+        public string[] incorrect_answers = new string[0];
     }
     
     //klasa gracza, zarówno AI jak i nasz
@@ -60,6 +61,40 @@ namespace ObjektowaGra
             }
         }
     }
+	
+	public class Quiz
+	{
+
+		Stack<int> chosenBefore = new Stack<int>();
+
+		//metoda wybierania pytania oraz przeciwdziałanie powtórzeniom
+		public static int chooseQuestion(int totalCount, Stack<int> chosenBefore)
+		{
+			int index;
+			var random = new Random();
+			do
+			{
+			index = random.Next(totalCount);
+			}while(chosenBefore.Contains(index));
+			chosenBefore.Push(index);
+			return index;
+		}
+
+		//metoda wyświetlania
+		public static void printQuestion(List<Item> items, Stack<int> chosenBefore)
+		{
+			int totalCount = items.Count;
+			int index = chooseQuestion(int totalCount, Stack<int> chosenBefore);
+			Console.WriteLine(items[index].question + "\n");
+			var random = new Random();
+			int option0 = items[index].correct_answer;
+			int option1 = items[index].incorrect_answers[0];
+			if (rand.Next(0, 2) == 0){
+			Console.WriteLine("A.  " + option0 + "           " + "B.  " + option1 + "\n");}
+			else{Console.WriteLine("A.  " + option1 + "           " + "B.  " + option0 + "\n");}
+			Console.WriteLine("Twoja odpowiedź? \n");
+		}
+	}
     
     internal class Program: Item
     {
