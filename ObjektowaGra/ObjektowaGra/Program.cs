@@ -14,7 +14,8 @@ namespace ObjektowaGra
         hard
     }
     
-    //klasa item, używana do przetrzymywania pytań
+    //klasa item, używana do przetrzymywania pytań	
+   //TODO: wymagane dalej by incorrect_answers było array - poprawić deserializację JSON
     public class Item
     {
         public string category;
@@ -22,7 +23,7 @@ namespace ObjektowaGra
         public string difficulty;
         public string question;
         public string correct_answer;
-        public string[] incorrect_answers = new string[0];
+        public string[] incorrect_answers = new string[];
     }
     
     //klasa gracza, zarówno AI jak i nasz
@@ -33,7 +34,7 @@ namespace ObjektowaGra
         int wrongCount;
         int rightCount;
 	
-        //konstruktor gracza
+        //konstruktor gracza; wymagane: (oczekiwane życie bohatera)
         public Player(int desiredHealth)
         {
             health = desiredHealth;
@@ -41,7 +42,7 @@ namespace ObjektowaGra
             rightCount = 0;
         }
 	
-        //metoda zadania obrażeń
+        //metoda zadania obrażeń; wymagane: (jaki heros dostaje obrażenia, pytanie w formie array z danymi)
         public static void damageTaken(Player hero, Item lista)
         {
             switch (lista.difficulty)
@@ -56,47 +57,68 @@ namespace ObjektowaGra
                     hero.health = hero.health - 4;
                     break;
                 default:
-                    Console.WriteLine("Błąd obliczania obrażeń");
+                    throw new ArgumentException("Błąd obliczania obrażeń w metodzie damageTaken");
                     break;
             }
         }
     }
 	
+	//ogólne metody dotyczące obecnie aktywnego zbioru pytań
+	//TODO? dodać możliwość supportu wielu plików z pytaniami?
 	public class Quiz
 	{
 
 		Stack<int> chosenBefore = new Stack<int>();
 
-		//metoda wybierania pytania oraz przeciwdziałanie powtórzeniom
+		//metoda wybierania pytania oraz przeciwdziałanie powtórzeniom; 
+		//wymagane (pełna ilość pytań w JSON, stack wykorzystanych do tej pory pytań z puli)
+		//zwracane - index w zakresie 0 - pełna ilość pytań oznaczający index wybranego pytania
 		public static int chooseQuestion(int totalCount, Stack<int> chosenBefore)
 		{
 			int index;
 			var random = new Random();
 			do
 			{
-			index = random.Next(totalCount);
+			index = random.Next(0, totalCount);
 			}while(chosenBefore.Contains(index));
 			chosenBefore.Push(index);
 			return index;
 		}
 
-		//metoda wyświetlania
-		public static void printQuestion(List<Item> items, Stack<int> chosenBefore)
+		//metoda wyboru miejsca odpowiedzi; zwraca położenie poprawnej odpowiedzi w skali innych (np. prz 4 odp to wartość od 0 do 3)
+		public static int chooseCorrectAnswerPlacement(List<Item> items, Stack<int> chosenBefore)
 		{
 			int totalCount = items.Count;
 			int index = chooseQuestion(totalCount, chosenBefore);
 			Console.WriteLine(items[index].question + "\n");
 			var random = new Random();
 			string correctAnswer = items[index].correct_answer;
-			string incorrectAnswer1 = items[index].incorrect_answers[0];
-			if (random.Next(0, 2) == 0){
-			Console.WriteLine("A.  " + correctAnswer + "           " + "B.  " + incorrectAnswer1 + "\n");}
-			else{Console.WriteLine("A.  " + incorrectAnswer1 + "           " + "B.  " + correctAnswer + "\n");}
-			Console.WriteLine("Twoja odpowiedź? \n");
+			int correctAnswerPlacement;
+			string[] incorrectAnswersAll = new string[items[index].incorrect_answers.Count]   //zliczenie ile błędnych, utworzenie array stringów tych odpowiedzi
+			switch (items[index].incorrect_answers.Count)
+				{
+					case 2:
+					correctAnswerPlacement = random.Next(0, 2);
+					break;
+					
+					case 3:
+					correctAnswerPlacement = random.Next(0, 3);
+					break;
+					
+					case 4:
+					correctAnswerPlacement = random.Next(0, 4);
+					break;
+					
+					default:
+					throw new ArgumentException("Błędna ilość odpowiedzi przekazana do metody chooseCorrectAnswerPlacement");
+					break;
+					
+				}
+			return correctAnswerPlacement;
 		}
 	}
     
-    internal class Program: Item
+    class Program: Item
     {
         //import pytań w formacie JSON
         public static List<Item> LoadJson()
