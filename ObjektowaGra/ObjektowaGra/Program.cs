@@ -14,7 +14,8 @@ namespace ObjektowaGra
         hard
     }
     
-    //klasa item, używana do przetrzymywania pytań
+    //klasa item, używana do przetrzymywania pytań	
+   //TODO: wymagane dalej by incorrect_answers było array - poprawić deserializację JSON
     public class Item
     {
         public string category;
@@ -22,7 +23,7 @@ namespace ObjektowaGra
         public string difficulty;
         public string question;
         public string correct_answer;
-        public string[] incorrect_answers = new string[0];
+        public string[] incorrect_answers = new string[];
     }
     
     //klasa gracza, zarówno AI jak i nasz
@@ -62,6 +63,8 @@ namespace ObjektowaGra
         }
     }
 	
+	//ogólne metody dotyczące obecnie aktywnego zbioru pytań
+	//TODO? dodać możliwość supportu wielu plików z pytaniami?
 	public class Quiz
 	{
 
@@ -82,8 +85,8 @@ namespace ObjektowaGra
 			return index;
 		}
 
-		//metoda wyboru kolejności odpowiedzi i wyświetlania pytania + dostępnych odpowiedzi
-		public static int[] chooseAnswers(List<Item> items, Stack<int> chosenBefore)
+		//metoda wyboru miejsca odpowiedzi; zwraca położenie poprawnej odpowiedzi w skali innych (np. prz 4 odp to wartość od 0 do 3)
+		public static int chooseCorrectAnswerPlacement(List<Item> items, Stack<int> chosenBefore)
 		{
 			int totalCount = items.Count;
 			int index = chooseQuestion(totalCount, chosenBefore);
@@ -99,19 +102,19 @@ namespace ObjektowaGra
 					break;
 					
 					case 3:
-					correctAnswerPlacement = random.Next(0, 2);
+					correctAnswerPlacement = random.Next(0, 3);
 					break;
 					
 					case 4:
-					correctAnswerPlacement = random.Next(0, 2);
+					correctAnswerPlacement = random.Next(0, 4);
 					break;
 					
 					default:
-					throw new ArgumentException("Błędna ilość odpowiedzi przekazana do metody chooseAnswers");
+					throw new ArgumentException("Błędna ilość odpowiedzi przekazana do metody chooseCorrectAnswerPlacement");
 					break;
 					
 				}
-			return 
+			return correctAnswerPlacement;
 		}
 	}
     
