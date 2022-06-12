@@ -42,7 +42,7 @@ namespace ObjektowaGra
         }
 	
         //metoda zadania obrażeń
-        public static void damageTaken(Player hero, List<Item> lista)
+        public static void damageTaken(Player hero, Item lista)
         {
             switch (lista.difficulty)
             {
@@ -84,14 +84,14 @@ namespace ObjektowaGra
 		public static void printQuestion(List<Item> items, Stack<int> chosenBefore)
 		{
 			int totalCount = items.Count;
-			int index = chooseQuestion(int totalCount, Stack<int> chosenBefore);
+			int index = chooseQuestion(totalCount, chosenBefore);
 			Console.WriteLine(items[index].question + "\n");
 			var random = new Random();
-			int option0 = items[index].correct_answer;
-			int option1 = items[index].incorrect_answers[0];
-			if (rand.Next(0, 2) == 0){
-			Console.WriteLine("A.  " + option0 + "           " + "B.  " + option1 + "\n");}
-			else{Console.WriteLine("A.  " + option1 + "           " + "B.  " + option0 + "\n");}
+			string correctAnswer = items[index].correct_answer;
+			string incorrectAnswer1 = items[index].incorrect_answers[0];
+			if (random.Next(0, 2) == 0){
+			Console.WriteLine("A.  " + correctAnswer + "           " + "B.  " + incorrectAnswer1 + "\n");}
+			else{Console.WriteLine("A.  " + incorrectAnswer1 + "           " + "B.  " + correctAnswer + "\n");}
 			Console.WriteLine("Twoja odpowiedź? \n");
 		}
 	}
