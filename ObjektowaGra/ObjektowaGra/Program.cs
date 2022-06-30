@@ -2,6 +2,7 @@ using Newtonsoft.Json;
 using System;
 using System.IO;
 using System.Collections.Generic;
+using System.Collections;
 
 namespace ObjektowaGra
 {
@@ -18,12 +19,12 @@ namespace ObjektowaGra
    //TODO: wymagane dalej by incorrect_answers było array - poprawić deserializację JSON
     public class Item
     {
-        public string category;
-        public string type;
-        public string difficulty;
-        public string question;
-        public string correct_answer;
-        public string[] incorrect_answers = new string[];
+        public string category { get; set; }
+        public string type { get; set; }
+        public string difficulty { get; set; }
+        public string question { get; set; }
+        public string correct_answer { get; set; }
+        public IList<string> incorrect_answers { get; set; }
     }
     
     //klasa gracza, zarówno AI jak i nasz
@@ -65,8 +66,8 @@ namespace ObjektowaGra
 	
 	//ogólne metody dotyczące obecnie aktywnego zbioru pytań
 	//TODO? dodać możliwość supportu wielu plików z pytaniami?
-	public class Quiz
-	{
+	public class Quiz : IEnumerable
+    {
 
 		Stack<int> chosenBefore = new Stack<int>();
 
@@ -86,16 +87,16 @@ namespace ObjektowaGra
 		}
 
 		//metoda wyboru miejsca odpowiedzi; zwraca położenie poprawnej odpowiedzi w skali innych (np. prz 4 odp to wartość od 0 do 3)
-		public static int chooseCorrectAnswerPlacement(List<Item> items, Stack<int> chosenBefore)
+		public static int chooseCorrectAnswerPlacement(List<Item> items, int index, Stack<int> chosenBefore)
 		{
 			int totalCount = items.Count;
-			int index = chooseQuestion(totalCount, chosenBefore);
-			Console.WriteLine(items[index].question + "\n");
+			int nr = index;
+			Console.WriteLine(items[nr].question + "\n");
 			var random = new Random();
-			string correctAnswer = items[index].correct_answer;
+			string correctAnswer = items[nr].correct_answer;
 			int correctAnswerPlacement;
-			string[] incorrectAnswersAll = new string[items[index].incorrect_answers.Count]   //zliczenie ile błędnych, utworzenie array stringów tych odpowiedzi
-			switch (items[index].incorrect_answers.Count)
+            string[] incorrectAnswersAll = new string[items[nr].incorrect_answers.Count()];   //zliczenie ile błędnych, utworzenie array stringów tych odpowiedzi
+			switch (items[nr].incorrect_answers.Count())
 				{
 					case 2:
 					correctAnswerPlacement = random.Next(0, 2);
@@ -116,7 +117,12 @@ namespace ObjektowaGra
 				}
 			return correctAnswerPlacement;
 		}
-	}
+
+        public IEnumerator GetEnumerator()
+        {
+            throw new NotImplementedException();
+        }
+    }
     
     class Program: Item
     {
@@ -126,15 +132,20 @@ namespace ObjektowaGra
             using (StreamReader r = new StreamReader("questions.json"))
             {
                 string json = r.ReadToEnd();
-                List<Item> items = JsonConvert.DeserializeObject<List<Item>>(json);
-                return items;
+                return JsonConvert.DeserializeObject<List<Item>>(json);
             }
         }
         
         //MAIN METHOD
         static void Main(string[] args)
         {
-            Console.WriteLine(LoadJson());
+            List <Item> items = LoadJson();
+            Console.WriteLine(items[1].category);
+            Console.WriteLine(items[1].type);
+            Console.WriteLine(items[1].difficulty);
+            Console.WriteLine(items[1].question);
+            Console.WriteLine(items[1].correct_answer);
+            Console.WriteLine(items[1].incorrect_answers[0]);
             Console.ReadKey();
         }
     }
